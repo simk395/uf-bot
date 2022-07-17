@@ -1,7 +1,7 @@
 import pyautogui
 import time
 import win32gui
-import keyboard
+import autoit
 
 def windowEnumerationHandler(hwnd, top_windows):
     top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
@@ -21,19 +21,15 @@ def focusWindow(app):
     win32gui.SetForegroundWindow(app)
 
 def locateButton(btn_name):
-    suffix = ["_s", "_m", "_l"]
-    locate = None
-    for i in suffix:
-        locate = pyautogui.locateCenterOnScreen('./images/{}{}.png'.format(btn_name,i), grayscale=False, confidence=0.9)
-        if locate != None:
-            return locate
+    locate = pyautogui.locateCenterOnScreen(f'./images/{btn_name}.png', grayscale=False, confidence=0.9)
+    if locate != None:
+        return locate
     return None
     
 def clickButton(btn_type):
     try:
         btn = locateButton(btn_type)
-        pyautogui.moveTo(btn[0], btn[1])
-        pyautogui.click()
+        pyautogui.click(btn[0], btn[1])
         return True
     except TypeError:
         print("Could not find button/banner. Returning to Home.")
@@ -62,13 +58,31 @@ def isLoading():
     while load != None:
         load = locateButton("loading")
         print("Loading...")
-    return
+
+def isDisabled():
+    disabled = locateButton("disabled")
+    while disabled != None:
+        print(disabled)
+        disabled = locateButton("disabled") 
+         
+
+def farmDungeon():
+    input("Run a dungeon and then leave it on Quest Result page. Press Enter when ready.")
+    clickButton("playagain")
+    isLoading()
+    time.sleep(1)
+    pyautogui.click()
+    time.sleep(0.5)
+    clickButton("ok")
+    isLoading()
+    isDisabled()
+
+    
 
 def main():
     if __name__ == "__main__":
         print("GranBot v1.0.0")
-        print("Playing in Medium Window Size is recommended!")
-        print("Please have Granblue on the Home page when using app.")
+        print("Remember to play on medium window size!")
         app = getProcess("granblue fantasy")
         if app == '':
             print("Granblue Fantasy is not open. Please open Granblue.")
@@ -78,15 +92,10 @@ def main():
         focusWindow(app)
         print("Choice Menu:")
         print("1. Unite and Fight Extreme+ Farm")
-        print("2. Slime Blast")
-        print("3. Angel Halo")
-        print("4. Event")
-        print("5. Quit")
         userInput = input()
 
         match userInput:
-            case "1" : return uniteFight()
-         
+            case "1" : return farmDungeon()
         quit()
     
 main()
